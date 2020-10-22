@@ -1,56 +1,133 @@
-Package Control Messages
-========================
+//
+//  kdtree.h
+//  kdtree
+//
+//  Created by Tanaka Katsuma on 2013/12/03.
+//  Copyright (c) 2013年 Katsuma Tanaka. All rights reserved.
+//
 
-Package Control
----------------
+#ifndef __kdtree__kdtree__
+#define __kdtree__kdtree__
 
-  Version 3.4.0 Release Notes
-  
-   -----------------------------------------------------------------------
-  | NOTICE: This will be the final release of Package Control supporting  |
-  | - Sublime Text 2                                                      |
-  | - Sublime Text 3 beta builds (<3143)                                  |
-   -----------------------------------------------------------------------
-  | Please see https://sublimetext.com for an updated build               |
-   -----------------------------------------------------------------------
-  
-  New features include:
-  
-   - Support for repositories hosted on https://gitlab.com - by TheSecEng
-  
-   - An alternative TLS implementation based on the oscrypto Python
-     library, which uses native operating system TLS libraries and
-     certificate handling. See the "downloader_precedence" setting to enable.
-  
-   - Preferences now use the side-by-side edit mode
-  
-   - Added command palette entries to enable and disable debug mode for
-     troubleshooting and bug reports
-  
-  Bug fixes include:
-  
-   - Fixed operation on macOS 11.0 Big Sur - by TheSecEng
-  
-   - Improved handling of invalid dependencies - by deathaxe
-  
-   - Corrected handling of unsuccessful downloads with wget - by deathaxe
-  
-   - Fixed various issues with the HTTP caching - by deathaxe
-  
-   - Updated the BitBucket provider to use the 2.0 API - deathaxe
-  
-   - Packages installed via symlinks are now unlinked instead of being
-     deleted when being removed or cleaned up - by rchl
-  
-   - Improved install performance of packages with large numbers of
-     files - by BenjaminSchaaf
-  
-   - Fixed handling of auth with the wininet downloader - by NicholasBuse
-  
-   - Fixed handling BitBucket repositories without a nickname
-  
-   - Resolved deadlocks and ignored packages occuring when removing multiple
-     dependencies at once
-  
-   - Package messages are no longer printed with trailing whitespace on lines
-     with no text - by dnicolson
+#include <iostream>
+#include "node.hpp"
+
+namespace kdtree {
+    template <typename T>
+    class kdtree {
+    public:
+        node<T> *root;
+        
+        ///-----------------------------------------------------------------------
+        /// @name Constructor
+        ///-----------------------------------------------------------------------
+        /**
+         *  Initialize kdtree.
+         *
+         *  @param points  A vector of points.
+         *
+         *  @return Initialized kdtree instance.
+         */
+        kdtree(std::vector<T> points) : kdtree<T>(&points[0], (int)points.size()) {}
+        
+        /**
+         *  Initialize kdtree.
+         *
+         *  @param points  An array of points.
+         *  @param size    A size of the array.
+         *
+         *  @return Initialized kdtree instance.
+         */
+        kdtree(T *points, int size) {
+            this->root = new node<T>(points, size);
+        }
+        
+        ///-----------------------------------------------------------------------
+        /// @name Destructor
+        ///-----------------------------------------------------------------------
+        /**
+         *  Delete kdtree object.
+         */
+        ~kdtree() {
+            delete this->root;
+        }
+        
+        ///-----------------------------------------------------------------------
+        /// @name Nearest Neighbor Search
+        ///-----------------------------------------------------------------------
+        /**
+         *  Search for the nearest neighbor in the tree.
+         *
+         *  @param query_point  A query point.
+         *
+         *  @return The nearest neighbor node.
+         */
+        node<T> * nearest(T query_point) {
+            return this->root->nearest(query_point);
+        }
+        
+        /**
+         *  Search for the nearest neighbor in the tree.
+         *
+         *  @param query  A query node.
+         *
+         *  @return The nearest neighbor node.
+         */
+        node<T> * nearest(node<T> *query) {
+            return this->root->nearest(query);
+        }
+        
+        /**
+         *  Search for all nearest neighbors within a certain radius of a point.
+         *
+         *  @param query_point  A query point.
+         *  @param r            A radius of the circle.
+         *
+         *  @return The vector of neighbors.
+         */
+        std::vector<node<T> *> radius_nearest(T query_point, const double r) {
+            return this->root->radius_nearest(query_point, r);
+        }
+        
+        /**
+         *  Search for all nearest neighbors within a certain radius of a point.
+         *
+         *  @param query  A query point.
+         *  @param r      A radius of the circle.
+         *
+         *  @return The vector of neighbors.
+         */
+        std::vector<node<T> *> radius_nearest(node<T> *query, const double r) {
+            return this->root->radius_nearest(query, r);
+        }
+        
+        ///-----------------------------------------------------------------------
+        /// @name k-Nearest Neighbor Search
+        ///-----------------------------------------------------------------------
+        /**
+         *  Search for k-nearest neighbors in the tree.
+         *
+         *  @param query_point  A query point.
+         *  @param k            Number of closest points to find.
+         *
+         *  @return The vector of neighbors.
+         */
+        std::vector<node<T> *> k_nearest(T query_point, const int k) {
+            return this->root->k_nearest(query_point, k);
+        }
+        
+        /**
+         *  Search for k-nearest neighbors in the tree.
+         *
+         *  @param query  A query node.
+         *  @param k      Number of closest points to find.
+         *
+         *  @return The vector of neighbors.
+         */
+        std::vector<node<T> *> k_nearest(node<T> *query, const int k) {
+            return this->root->k_nearest(query, k);
+        }
+    };
+}
+
+#endif /* defined(__kdtree__kdtree__) */
